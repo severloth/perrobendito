@@ -143,9 +143,11 @@ async function main() {
   const password = process.env.ADMIN_PASSWORD ?? "cambiar123";
   const passwordHash = await bcrypt.hash(password, 10);
 
+  // Se actualiza el hash: asi cambiar ADMIN_PASSWORD y re-correr el seed
+  // efectivamente rota la clave en vez de dejar la vieja para siempre.
   await prisma.adminUser.upsert({
     where: { email },
-    update: {},
+    update: { passwordHash },
     create: { email, name: "Admin", passwordHash },
   });
 
