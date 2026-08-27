@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Pooled (PgBouncer) para las funciones serverless.
+  url       = env("DATABASE_URL")
+  // Conexion directa: la usan las migraciones, que no pueden ir por el pooler.
+  directUrl = env("DIRECT_URL")
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Teacher {
+  id         String       @id @default(cuid())
+  name       String
+  discipline String
+  bio        String       @default("")
+  photoUrl   String       @default("")
+  order      Int          @default(0)
+  published  Boolean      @default(true)
+  classes    ClassItem[]
+  services   ServiceItem[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+}
+
+model ClassItem {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  kicker      String   @default("Clase")
+  summary     String   @default("")
+  description String   @default("")
+  level       String   @default("Pendiente")
+  duration    String   @default("Pendiente")
+  modality    String   @default("Pendiente")
+  photoUrl    String   @default("")
+  order       Int      @default(0)
+  published   Boolean  @default(true)
+  teacherId   String?
+  teacher     Teacher? @relation(fields: [teacherId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ServiceItem {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  kicker      String   @default("Servicio")
+  summary     String   @default("")
+  description String   @default("")
+  scope       String   @default("Pendiente")
+  duration    String   @default("Pendiente")
+  format      String   @default("Pendiente")
+  photoUrl    String   @default("")
+  order       Int      @default(0)
+  published   Boolean  @default(true)
+  teacherId   String?
+  teacher     Teacher? @relation(fields: [teacherId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Faq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Generic editable text/image blocks for hero copy, about page, etc.
+// key identifies the spot in the UI (e.g. "home.hero.title").
+model ContentBlock {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  label     String
+  value     String   @default("")
+  updatedAt DateTime @updatedAt
+}
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  contact   String
+  reason    String
+  detail    String   @default("")
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
